@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         String   @default("user")
+  createdAt    DateTime @default(now())
+  orders       Order[]
+}
+
+model Product {
+  product_id        String      @id
+  title_tamil       String?
+  title_english     String?
+  author            String?
+  price             Float       @default(0)
+  description       String?
+  category          String[]
+  isbn_13           String?
+  publisher         String?
+  publication_year  Int?
+  page_count        Int?
+  cover_image_url   String?
+  stock_quantity    Int         @default(0)
+  status            String      @default("Published")
+  createdAt         DateTime    @default(now())
+  orderItems        OrderItem[]
+}
+
+model Order {
+  id            String      @id
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  cart_id       String?
+  shipping      Json
+  paymentMethod String
+  subtotal      Float       @default(0)
+  total         Float       @default(0)
+  status        String      @default("Processing")
+  tracking      String?
+  date          DateTime    @default(now())
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(uuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [product_id])
+  quantity  Int
+  price     Float
+}

@@ -1,0 +1,37 @@
+[{
+    "id": "ORD_1762281599153",
+    "userId": "u_aXRzbWUu",
+    "cart_id": "cart_1762281599046",
+    "items": [{
+        "product_id": "b1",
+        "title_tamil": "பொன்னியின் செல்வன் — தொகுதி 1",
+        "title_english": "Ponniyin Selvan — Volume 1",
+        "author": "Kalki Krishnamurthy",
+        "publisher": "Kanai Publishers",
+        "isbn_13": "9781234567890",
+        "price": 499,
+        "publication_year": 1950,
+        "page_count": 512,
+        "category": [
+            "Historical Fiction"
+        ],
+        "cover_image_url": "https://via.placeholder.com/400x600?text=Ponniyin+Selvan+1",
+        "stock_quantity": 12,
+        "status": "Active",
+        "description": "A historical novel set in the Chola dynasty. Rich narrative and characters.",
+        "qty": 1
+    }],
+    "shipping": {
+        "name": "tamilarasan",
+        "address": "afgcas",
+        "city": "dgdg",
+        "state": "dfgdf",
+        "postal": "454646",
+        "phone": "1343435342"
+    },
+    "paymentMethod": "cod",
+    "subtotal": 499,
+    "total": 574,
+    "status": "Processing",
+    "date": "2025-11-04T18:39:59.153Z"
+}]

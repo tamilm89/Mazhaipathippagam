@@ -1,0 +1,6 @@
+body{ font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Arial; margin:0; padding:12px }
+.header{ display:flex; justify-content:space-between; align-items:center; }
+.table{ width:100%; border-collapse:collapse }
+.table th, .table td{ border:1px solid #ddd; padding:8px }
+.card{ border:1px solid #eee; padding:12px; border-radius:6px; background:#fff }
+.button{ background:#0b73ff; color:#fff; border:none; padding:8px 12px; border-radius:4px; cursor:pointer }
