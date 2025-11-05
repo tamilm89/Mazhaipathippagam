@@ -1,4 +1,4 @@
-# Mazhipathippagam — Tamil Book Shop
+# Mazhipathippagam — Book Seller and Publisher
 
 This workspace contains three parts:
 
