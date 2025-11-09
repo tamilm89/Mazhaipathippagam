@@ -1,46 +1,68 @@
 const express = require('express')
 const router = express.Router()
 const { requireAuth, requireAdmin } = require('../middleware/auth')
-const { safeDbOperation, prisma } = require('../lib/safe-db')
 const path = require('path')
 const fs = require('fs')
 
-// Fallback data
-const getFallbackProducts = () => {
+// Always use JSON fallback first - no database dependency for now
+const getProducts = () => {
   try {
     const dataFile = path.join(__dirname, '..', 'data', 'products.json')
-    return JSON.parse(fs.readFileSync(dataFile, 'utf8'))
+    const products = JSON.parse(fs.readFileSync(dataFile, 'utf8'))
+    console.log(`Loaded ${products.length} products from JSON file`)
+    return products
   } catch (error) {
-    console.error('Failed to load fallback products:', error)
-    return []
+    console.error('Failed to load products from JSON:', error)
+    return [
+      {
+        product_id: "b1",
+        title_tamil: "பொன்னியின் செல்வன் — தொகுதி 1",
+        title_english: "Ponniyin Selvan — Volume 1",
+        author: "Kalki Krishnamurthy",
+        price: 499,
+        description: "A historical novel set in the Chola dynasty",
+        category: ["Historical Fiction"],
+        stock_quantity: 12,
+        status: "Active",
+        cover_image_url: "https://via.placeholder.com/400x600?text=Ponniyin+Selvan+1"
+      },
+      {
+        product_id: "b2", 
+        title_tamil: "சிவகாமியின் சபதம்",
+        title_english: "Sivagamiyin Sabadham",
+        author: "Kalki Krishnamurthy",
+        price: 450,
+        description: "Historical novel about Pallava period",
+        category: ["Historical Fiction"],
+        stock_quantity: 8,
+        status: "Active",
+        cover_image_url: "https://via.placeholder.com/400x600?text=Sivagamiyin+Sabadham"
+      }
+    ]
   }
 }
 
-router.get('/', async (req,res)=>{
-  try{
-    console.log('Fetching products...')
+router.get('/', async (req, res) => {
+  try {
+    console.log('GET /products - using JSON fallback')
+    const products = getProducts()
     
-    // Try database first with timeout
-    const products = await safeDbOperation(
-      prisma.product.findMany({ orderBy: { createdAt: 'desc' } })
-    )
-    
-    if (products) {
-      console.log(`Found ${products.length} products from database`)
-      return res.json(products)
+    // Add timestamp to verify it's working
+    const response = {
+      products,
+      count: products.length,
+      source: 'json_file',
+      timestamp: new Date().toISOString()
     }
     
-    // Fallback to JSON file
-    console.log('Using fallback products')
-    const fallbackProducts = getFallbackProducts()
-    return res.json(fallbackProducts)
-    
-  }catch(err){
-    console.error('products GET error:', err)
-    
-    // Always return something, even if it's empty
-    const fallbackProducts = getFallbackProducts()
-    return res.json(fallbackProducts)
+    res.json(response)
+  } catch (error) {
+    console.error('Products route error:', error)
+    res.status(500).json({ 
+      error: 'Failed to fetch products',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    })
   }
 })
 

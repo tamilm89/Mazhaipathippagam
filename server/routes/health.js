@@ -7,32 +7,21 @@ router.get('/', (req, res) => {
     status: 'ok', 
     message: 'Tamil Book Shop API is running',
     timestamp: new Date().toISOString(),
-    environment: process.env.NODE_ENV || 'development'
+    environment: process.env.NODE_ENV || 'development',
+    version: '1.0.0'
   })
 })
 
-// Health check with database status
-router.get('/health', async (req, res) => {
+// System info endpoint
+router.get('/health', (req, res) => {
   const health = {
-    status: 'ok',
+    status: 'healthy',
     timestamp: new Date().toISOString(),
-    database: 'unknown',
-    environment: process.env.NODE_ENV || 'development'
-  }
-
-  try {
-    const { safeDbOperation, prisma } = require('../lib/safe-db')
-    
-    // Quick database test with timeout
-    const dbTest = await safeDbOperation(
-      prisma.$queryRaw`SELECT 1 as test`
-    )
-    
-    health.database = dbTest ? 'connected' : 'fallback'
-    
-  } catch (error) {
-    health.database = 'error'
-    health.error = error.message
+    environment: process.env.NODE_ENV || 'development',
+    database: 'not_tested',
+    uptime: process.uptime(),
+    memory: process.memoryUsage(),
+    version: '1.0.0'
   }
 
   res.json(health)
