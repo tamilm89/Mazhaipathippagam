@@ -1,25 +1,46 @@
 const express = require('express')
 const router = express.Router()
 const { requireAuth, requireAdmin } = require('../middleware/auth')
-const prisma = require('../lib/db')
+const { safeDbOperation, prisma } = require('../lib/safe-db')
+const path = require('path')
+const fs = require('fs')
 
-const USE_DB = !!process.env.DATABASE_URL
+// Fallback data
+const getFallbackProducts = () => {
+  try {
+    const dataFile = path.join(__dirname, '..', 'data', 'products.json')
+    return JSON.parse(fs.readFileSync(dataFile, 'utf8'))
+  } catch (error) {
+    console.error('Failed to load fallback products:', error)
+    return []
+  }
+}
 
 router.get('/', async (req,res)=>{
   try{
-    if(!USE_DB){
-      // fallback to JSON file if no DATABASE_URL
-      const path = require('path')
-      const fs = require('fs')
-      const dataFile = path.join(__dirname, '..', 'data', 'products.json')
-      const list = JSON.parse(fs.readFileSync(dataFile,'utf8'))
-      return res.json(list)
+    console.log('Fetching products...')
+    
+    // Try database first with timeout
+    const products = await safeDbOperation(
+      prisma.product.findMany({ orderBy: { createdAt: 'desc' } })
+    )
+    
+    if (products) {
+      console.log(`Found ${products.length} products from database`)
+      return res.json(products)
     }
-    const list = await prisma.product.findMany({ orderBy: { createdAt: 'desc' } })
-    res.json(list)
+    
+    // Fallback to JSON file
+    console.log('Using fallback products')
+    const fallbackProducts = getFallbackProducts()
+    return res.json(fallbackProducts)
+    
   }catch(err){
     console.error('products GET error:', err)
-    res.status(500).json({ error:'Failed to fetch products' })
+    
+    // Always return something, even if it's empty
+    const fallbackProducts = getFallbackProducts()
+    return res.json(fallbackProducts)
   }
 })
 
